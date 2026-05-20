@@ -482,6 +482,74 @@
       opacity: .75;
     }
 
+    @media (max-width: 720px), (pointer: coarse) {
+      body::after,
+      .scanline,
+      .halo,
+      .bar,
+      .shooting-star.s3,
+      .cursor-glow {
+        display: none;
+      }
+
+      .scene {
+        perspective: none;
+        transform: none !important;
+      }
+
+      .aurora {
+        filter: blur(10px) saturate(1.08);
+        animation-duration: 24s;
+        opacity: .72;
+      }
+
+      .orb,
+      .chrome-ring,
+      .heart,
+      .capsule,
+      .jelly,
+      .moon,
+      .triangle,
+      .checker {
+        backdrop-filter: none !important;
+        box-shadow: 0 14px 34px rgba(126,83,190,.12) !important;
+        animation-duration: 12s !important;
+      }
+
+      .o5,
+      .j3,
+      .t2,
+      .checker,
+      .bubble:nth-of-type(n+6) {
+        display: none;
+      }
+
+      .bubble {
+        opacity: .55;
+        animation-duration: 18s !important;
+      }
+
+      .sparkle {
+        opacity: .62;
+      }
+
+      .trail {
+        display: none;
+      }
+
+      .click-particle {
+        box-shadow: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
     .trail {
       position: fixed;
       z-index: 90;
@@ -676,6 +744,7 @@
     const scene = document.querySelector('.scene');
     const glow = document.querySelector('.cursor-glow');
     const layers = document.querySelectorAll('.orb, .chrome-ring, .heart, .capsule, .jelly, .moon, .triangle, .checker');
+    const isMobile = window.matchMedia('(max-width: 720px), (pointer: coarse)').matches;
 
     const tinyColors = [
       'linear-gradient(135deg, #ff4fa3, #ff9ccc)',
@@ -687,7 +756,7 @@
 
     const tinyTypes = ['dot', 'ring', 'diamond', 'line', 'tri'];
 
-    for (let i = 0; i < 90; i++) {
+    for (let i = 0; i < (isMobile ? 24 : 90); i++) {
       const piece = document.createElement('i');
       const type = tinyTypes[Math.floor(Math.random() * tinyTypes.length)];
       const size = Math.floor(6 + Math.random() * 22);
@@ -706,40 +775,48 @@
     }
 
     let trailLock = false;
+    let moveLock = false;
 
     window.addEventListener('pointermove', (event) => {
-      const x = event.clientX / window.innerWidth - 0.5;
-      const y = event.clientY / window.innerHeight - 0.5;
+      if (isMobile || moveLock) return;
+      moveLock = true;
 
-      if (glow) {
-        glow.style.left = event.clientX + 'px';
-        glow.style.top = event.clientY + 'px';
-      }
+      requestAnimationFrame(() => {
+        const x = event.clientX / window.innerWidth - 0.5;
+        const y = event.clientY / window.innerHeight - 0.5;
 
-      if (scene) {
-        scene.style.transform = `rotateX(${y * -4}deg) rotateY(${x * 4}deg)`;
-      }
+        if (glow) {
+          glow.style.left = event.clientX + 'px';
+          glow.style.top = event.clientY + 'px';
+        }
 
-      layers.forEach((el, index) => {
-        const depth = (index % 6 + 1) * 4;
-        el.style.marginLeft = `${x * depth}px`;
-        el.style.marginTop = `${y * depth}px`;
+        if (scene) {
+          scene.style.transform = `rotateX(${y * -4}deg) rotateY(${x * 4}deg)`;
+        }
+
+        layers.forEach((el, index) => {
+          const depth = (index % 6 + 1) * 4;
+          el.style.marginLeft = `${x * depth}px`;
+          el.style.marginTop = `${y * depth}px`;
+        });
+
+        if (!trailLock) {
+          trailLock = true;
+          const trail = document.createElement('i');
+          trail.className = 'trail';
+          trail.style.left = event.clientX + 'px';
+          trail.style.top = event.clientY + 'px';
+          document.body.appendChild(trail);
+          setTimeout(() => trail.remove(), 700);
+          setTimeout(() => { trailLock = false; }, 38);
+        }
+
+        moveLock = false;
       });
-
-      if (!trailLock) {
-        trailLock = true;
-        const trail = document.createElement('i');
-        trail.className = 'trail';
-        trail.style.left = event.clientX + 'px';
-        trail.style.top = event.clientY + 'px';
-        document.body.appendChild(trail);
-        setTimeout(() => trail.remove(), 700);
-        setTimeout(() => { trailLock = false; }, 38);
-      }
-    });
+    }, { passive: true });
 
     window.addEventListener('pointerdown', (event) => {
-      const count = 34;
+      const count = isMobile ? 10 : 34;
       for (let i = 0; i < count; i++) {
         const particle = document.createElement('i');
         const angle = Math.random() * Math.PI * 2;
@@ -766,3 +843,4 @@
   </script>
 </body>
 </html>
+
