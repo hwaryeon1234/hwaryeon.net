@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hwaryeon.net</title>
+  <style>
+    :root {
+      --pink: #ff9ccc;
+      --hot: #ff4fa3;
+      --baby: #ffd8ec;
+      --lavender: #c8b6ff;
+      --violet: #8066ff;
+      --mint: #bffff0;
+      --yellow: #fff2a8;
+      --blue: #bde7ff;
+      --glass: rgba(255, 255, 255, .54);
+      --line: rgba(255, 255, 255, .78);
+      --shadow: 0 28px 90px rgba(126, 83, 190, .24);
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(255, 79, 163, .38), transparent 24%),
+        radial-gradient(circle at 86% 16%, rgba(128, 102, 255, .36), transparent 28%),
+        radial-gradient(circle at 50% 92%, rgba(255, 216, 236, .9), transparent 38%),
+        linear-gradient(135deg, #fff2f9 0%, #f7edff 48%, #ffffff 100%);
+      font-family: system-ui, sans-serif;
+      cursor: crosshair;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -6;
+      pointer-events: none;
+      opacity: .34;
+      background-image:
+        linear-gradient(rgba(255,255,255,.72) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.72) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(to bottom, black, transparent 84%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -5;
+      pointer-events: none;
+      opacity: .08;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    .scene {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      perspective: 1000px;
+      transform-style: preserve-3d;
+    }
+
+    .aurora {
+      position: absolute;
+      inset: -20%;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255, 79, 163, .26), transparent 22%),
+        radial-gradient(circle at 76% 24%, rgba(128, 102, 255, .26), transparent 25%),
+        radial-gradient(circle at 45% 74%, rgba(191, 255, 240, .38), transparent 26%),
+        radial-gradient(circle at 82% 82%, rgba(255, 242, 168, .32), transparent 22%);
+      filter: blur(20px) saturate(1.3);
+      animation: auroraMove 14s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    .scanline {
+      position: absolute;
+      inset: 0;
+      z-index: 60;
+      pointer-events: none;
+      opacity: .09;
+      background: repeating-linear-gradient(to bottom, rgba(255,255,255,.9) 0 1px, transparent 1px 5px);
+      mix-blend-mode: overlay;
+    }
+
+    .halo {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 72vmin;
+      height: 72vmin;
+      border-radius: 999px;
+      transform: translate(-50%, -50%);
+      background:
+        radial-gradient(circle, transparent 48%, rgba(255,255,255,.34) 49% 50%, transparent 51%),
+        conic-gradient(from 180deg, rgba(255,79,163,.22), rgba(191,255,240,.22), rgba(128,102,255,.22), rgba(255,242,168,.18), rgba(255,79,163,.22));
+      filter: blur(.2px);
+      opacity: .64;
+      animation: spin 24s linear infinite;
+      pointer-events: none;
+    }
+
+    .orb,
+    .chrome-ring,
+    .heart,
+    .capsule,
+    .jelly,
+    .moon,
+    .triangle,
+    .checker,
+    .bar,
+    .donut,
+    .diamond,
+    .tiny-piece {
+      position: absolute;
+      will-change: transform;
+      transform-style: preserve-3d;
+    }
+
+    .orb {
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 28% 20%, rgba(255,255,255,.96), transparent 24%),
+        linear-gradient(145deg, rgba(255,255,255,.7), rgba(255,255,255,.22));
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.86);
+      animation: floaty var(--speed) ease-in-out infinite;
+    }
+
+    .orb::after {
+      content: "";
+      position: absolute;
+      inset: 14%;
+      border-radius: inherit;
+      border: 1px solid rgba(255,255,255,.52);
+      background: linear-gradient(135deg, rgba(255,255,255,.24), rgba(255,255,255,0));
+      pointer-events: none;
+    }
+
+    .o1 {
+      width: 28vmin;
+      height: 28vmin;
+      left: 7vw;
+      top: 12vh;
+      border-radius: 42% 58% 48% 52% / 55% 38% 62% 45%;
+      --speed: 7.2s;
+      background:
+        radial-gradient(circle at 28% 20%, rgba(255,255,255,.98), transparent 22%),
+        radial-gradient(circle at 70% 76%, rgba(128,102,255,.32), transparent 42%),
+        linear-gradient(145deg, rgba(255,156,204,.68), rgba(255,255,255,.2));
+    }
+
+    .o2 {
+      width: 18vmin;
+      height: 18vmin;
+      right: 13vw;
+      top: 10vh;
+      border-radius: 999px;
+      --speed: 5.8s;
+      animation-delay: -1.2s;
+      background:
+        radial-gradient(circle at 28% 20%, rgba(255,255,255,.98), transparent 26%),
+        conic-gradient(from 90deg, rgba(255,255,255,.88), rgba(197,178,255,.76), rgba(191,255,240,.78), rgba(255,156,204,.7), rgba(255,255,255,.88));
+    }
+
+    .o3 {
+      width: 34vmin;
+      height: 23vmin;
+      left: 34vw;
+      top: 34vh;
+      border-radius: 48% 52% 46% 54% / 62% 38% 62% 38%;
+      --speed: 8.5s;
+      animation-delay: -.8s;
+      background:
+        radial-gradient(circle at 24% 16%, rgba(255,255,255,.95), transparent 24%),
+        linear-gradient(145deg, rgba(255,216,236,.72), rgba(197,178,255,.4));
+    }
+
+    .o4 {
+      width: 21vmin;
+      height: 21vmin;
+      right: 7vw;
+      bottom: 14vh;
+      border-radius: 38% 62% 56% 44% / 42% 54% 46% 58%;
+      --speed: 6.9s;
+      animation-delay: -2.1s;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,.98), transparent 20%),
+        linear-gradient(145deg, rgba(191,255,240,.7), rgba(255,156,204,.42));
+    }
+
+    .o5 {
+      width: 16vmin;
+      height: 16vmin;
+      left: 16vw;
+      bottom: 13vh;
+      border-radius: 999px;
+      --speed: 7.6s;
+      animation-delay: -3s;
+      background:
+        radial-gradient(circle at 28% 20%, rgba(255,255,255,.96), transparent 24%),
+        linear-gradient(145deg, rgba(255,242,168,.82), rgba(255,156,204,.42));
+    }
+
+    .chrome-ring,
+    .donut {
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.82);
+      background:
+        conic-gradient(from 120deg, #fff, #ffc4e4, #8c74ff, #bffff0, #fff, #ff5bad, #fff);
+      box-shadow: 0 28px 80px rgba(126,83,190,.2), inset 0 0 20px rgba(255,255,255,.7);
+      animation: ringFloat var(--speed) ease-in-out infinite, spin 9s linear infinite;
+    }
+
+    .chrome-ring::before,
+    .donut::before {
+      content: "";
+      position: absolute;
+      inset: 19%;
+      border-radius: inherit;
+      background: rgba(255, 247, 252, .86);
+      border: 1px solid rgba(255,255,255,.9);
+      box-shadow: inset 0 8px 24px rgba(126,83,190,.11);
+    }
+
+    .r1 { width: 20vmin; height: 20vmin; left: 56vw; top: 12vh; --speed: 7.5s; }
+    .r2 { width: 27vmin; height: 27vmin; right: 22vw; bottom: 7vh; --speed: 9s; animation-delay: -2s; opacity: .92; }
+
+    .heart {
+      width: 11vmin;
+      height: 11vmin;
+      transform: rotate(-45deg);
+      background:
+        radial-gradient(circle at 32% 28%, rgba(255,255,255,.85), transparent 22%),
+        linear-gradient(135deg, #ff4fa3, #ff9ccc);
+      filter: drop-shadow(0 22px 36px rgba(255,79,163,.28));
+      animation: heartFloat 6.8s ease-in-out infinite;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 999px;
+      background: inherit;
+    }
+
+    .heart::before { top: -50%; left: 0; }
+    .heart::after { left: 50%; top: 0; }
+
+    .h1 { left: 72vw; top: 44vh; }
+    .h2 { left: 25vw; top: 22vh; width: 7vmin; height: 7vmin; animation-delay: -2s; opacity: .85; }
+    .h3 { left: 48vw; bottom: 13vh; width: 8vmin; height: 8vmin; animation-delay: -3.4s; opacity: .78; }
+
+    .capsule {
+      width: 22vmin;
+      height: 8vmin;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 18% 26%, rgba(255,255,255,.96), transparent 18%),
+        linear-gradient(90deg, rgba(255,79,163,.56), rgba(197,178,255,.58), rgba(191,255,240,.52));
+      box-shadow: 0 24px 60px rgba(126,83,190,.17), inset 0 1px 0 rgba(255,255,255,.86);
+      animation: capsuleWobble 7s ease-in-out infinite;
+    }
+
+    .c1 { left: 9vw; top: 47vh; transform: rotate(-18deg); }
+    .c2 { right: 12vw; top: 31vh; width: 16vmin; height: 6vmin; transform: rotate(21deg); animation-delay: -2.8s; }
+
+    .jelly {
+      width: 14vmin;
+      height: 14vmin;
+      border-radius: 34% 66% 40% 60% / 57% 42% 58% 43%;
+      border: 1px solid rgba(255,255,255,.78);
+      background:
+        radial-gradient(circle at 30% 23%, rgba(255,255,255,.96), transparent 20%),
+        linear-gradient(145deg, rgba(255,156,204,.66), rgba(191,255,240,.42));
+      box-shadow: 0 25px 60px rgba(126,83,190,.16), inset 0 1px 0 rgba(255,255,255,.86);
+      animation: jelly 5.4s ease-in-out infinite;
+    }
+
+    .j1 { left: 77vw; top: 7vh; }
+    .j2 { left: 6vw; bottom: 6vh; width: 11vmin; height: 11vmin; animation-delay: -1.9s; }
+    .j3 { right: 41vw; top: 9vh; width: 8vmin; height: 8vmin; animation-delay: -3s; }
+
+    .moon {
+      width: 11vmin;
+      height: 11vmin;
+      left: 64vw;
+      bottom: 25vh;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(255,242,168,.95), rgba(255,255,255,.62));
+      box-shadow: 0 18px 46px rgba(126,83,190,.14);
+      animation: moonFloat 8s ease-in-out infinite;
+    }
+
+    .moon::after {
+      content: "";
+      position: absolute;
+      width: 82%;
+      height: 82%;
+      right: -16%;
+      top: -3%;
+      border-radius: 999px;
+      background: #fff4fb;
+    }
+
+    .triangle {
+      width: 0;
+      height: 0;
+      border-left: 6vmin solid transparent;
+      border-right: 6vmin solid transparent;
+      border-bottom: 10vmin solid rgba(255,156,204,.54);
+      filter: drop-shadow(0 20px 34px rgba(126,83,190,.14));
+      animation: triangleFlip 8.8s ease-in-out infinite;
+    }
+
+    .t1 { left: 41vw; bottom: 5vh; }
+    .t2 { right: 4vw; top: 55vh; transform: scale(.7) rotate(22deg); animation-delay: -3.2s; opacity: .78; }
+
+    .checker {
+      width: 13vmin;
+      height: 13vmin;
+      left: 30vw;
+      bottom: 29vh;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.84);
+      background:
+        linear-gradient(45deg, rgba(255,255,255,.86) 25%, transparent 25% 75%, rgba(255,255,255,.86) 75%),
+        linear-gradient(45deg, rgba(255,156,204,.58) 25%, rgba(197,178,255,.58) 25% 75%, rgba(255,156,204,.58) 75%);
+      background-size: 32px 32px;
+      background-position: 0 0, 16px 16px;
+      box-shadow: 0 20px 52px rgba(126,83,190,.15);
+      animation: checkerMove 10s linear infinite, floaty 6.5s ease-in-out infinite;
+    }
+
+    .bar {
+      width: 2px;
+      height: 120vh;
+      top: -10vh;
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,.55), transparent);
+      opacity: .32;
+      animation: barSlide 9s ease-in-out infinite;
+    }
+
+    .b1 { left: 18vw; }
+    .b2 { left: 52vw; animation-delay: -3s; }
+    .b3 { left: 86vw; animation-delay: -6s; }
+
+    .sparkle {
+      position: absolute;
+      width: var(--s);
+      height: var(--s);
+      left: var(--x);
+      top: var(--y);
+      filter: drop-shadow(0 12px 18px rgba(255,79,163,.22));
+      animation: twinkle var(--d) ease-in-out infinite;
+      opacity: .9;
+    }
+
+    .sparkle::before,
+    .sparkle::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 16%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,.98), transparent);
+      transform: translate(-50%, -50%);
+    }
+
+    .sparkle::after { width: 100%; height: 16%; }
+
+    .bubble {
+      position: absolute;
+      width: var(--s);
+      height: var(--s);
+      left: var(--x);
+      bottom: -12vh;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.72);
+      background:
+        radial-gradient(circle at 32% 26%, rgba(255,255,255,.95), transparent 18%),
+        radial-gradient(circle at 70% 76%, rgba(255,156,204,.25), transparent 38%),
+        rgba(255,255,255,.25);
+      box-shadow: inset 0 1px 8px rgba(255,255,255,.72), 0 18px 38px rgba(126,83,190,.12);
+      animation: bubbleUp var(--d) linear infinite;
+      animation-delay: var(--delay);
+    }
+
+    .shooting-star {
+      position: absolute;
+      width: 120px;
+      height: 2px;
+      top: 20vh;
+      left: -160px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.98), transparent);
+      filter: drop-shadow(0 0 12px rgba(255,79,163,.8));
+      transform: rotate(-18deg);
+      animation: shoot 5.5s ease-in-out infinite;
+      opacity: 0;
+    }
+
+    .shooting-star.s2 { top: 62vh; animation-delay: -2.4s; transform: rotate(-12deg); }
+    .shooting-star.s3 { top: 39vh; animation-delay: -4s; transform: rotate(-22deg); }
+
+    .tiny-piece {
+      left: var(--x);
+      top: var(--y);
+      width: var(--s);
+      height: var(--s);
+      opacity: var(--o);
+      animation: tinyFloat var(--d) ease-in-out infinite;
+      animation-delay: var(--delay);
+      filter: drop-shadow(0 10px 16px rgba(126,83,190,.12));
+    }
+
+    .tiny-piece.dot {
+      border-radius: 999px;
+      background: var(--bg);
+      border: 1px solid rgba(255,255,255,.78);
+    }
+
+    .tiny-piece.ring {
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,.85);
+      background: transparent;
+      box-shadow: inset 0 0 0 3px rgba(255,156,204,.24);
+    }
+
+    .tiny-piece.diamond {
+      border-radius: 7px;
+      background: var(--bg);
+      border: 1px solid rgba(255,255,255,.78);
+      transform: rotate(45deg);
+    }
+
+    .tiny-piece.line {
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      box-shadow: 0 0 0 1px rgba(255,156,204,.18);
+    }
+
+    .tiny-piece.tri {
+      width: 0;
+      height: 0;
+      border-left: calc(var(--s) / 2) solid transparent;
+      border-right: calc(var(--s) / 2) solid transparent;
+      border-bottom: var(--s) solid rgba(197,178,255,.62);
+    }
+
+    .cursor-glow {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 80;
+      width: 220px;
+      height: 220px;
+      border-radius: 999px;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(255,79,163,.2), rgba(197,178,255,.14), transparent 68%);
+      filter: blur(4px);
+      mix-blend-mode: screen;
+      opacity: .75;
+    }
+
+    .trail {
+      position: fixed;
+      z-index: 90;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(255,255,255,.96), rgba(255,79,163,.42), transparent 70%);
+      transform: translate(-50%, -50%);
+      animation: trail .68s ease-out forwards;
+    }
+
+    .click-particle {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 999;
+      width: var(--size);
+      height: var(--size);
+      border-radius: 999px;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 32% 26%, rgba(255,255,255,.95), transparent 20%),
+        var(--bg);
+      box-shadow: 0 10px 26px rgba(126,83,190,.22);
+      animation: burst .82s cubic-bezier(.15,.75,.25,1) forwards;
+    }
+
+    @keyframes auroraMove {
+      0% { transform: translate3d(-2%, -2%, 0) rotate(0deg) scale(1); }
+      100% { transform: translate3d(2%, 3%, 0) rotate(7deg) scale(1.06); }
+    }
+
+    @keyframes floaty {
+      0%, 100% { transform: translate3d(0,0,0) rotate(-4deg) scale(1); }
+      50% { transform: translate3d(0,-28px,55px) rotate(5deg) scale(1.025); }
+    }
+
+    @keyframes ringFloat {
+      0%, 100% { translate: 0 0; }
+      50% { translate: 0 -34px; }
+    }
+
+    @keyframes heartFloat {
+      0%, 100% { translate: 0 0; rotate: -45deg; }
+      50% { translate: 0 -30px; rotate: -35deg; }
+    }
+
+    @keyframes spin { to { rotate: 360deg; } }
+
+    @keyframes twinkle {
+      0%, 100% { transform: scale(.55) rotate(0deg); opacity: .35; }
+      50% { transform: scale(1.24) rotate(90deg); opacity: 1; }
+    }
+
+    @keyframes bubbleUp {
+      0% { transform: translate3d(0,0,0) scale(.8); opacity: 0; }
+      12% { opacity: .9; }
+      100% { transform: translate3d(var(--drift), -120vh, 0) scale(1.15); opacity: 0; }
+    }
+
+    @keyframes shoot {
+      0%, 58% { transform: translateX(0) rotate(-18deg); opacity: 0; }
+      64% { opacity: 1; }
+      82%, 100% { transform: translateX(125vw) rotate(-18deg); opacity: 0; }
+    }
+
+    @keyframes burst {
+      0% { transform: translate3d(var(--start-x), var(--start-y), 0) scale(.5); opacity: 1; }
+      100% { transform: translate3d(calc(var(--start-x) + var(--dx)), calc(var(--start-y) + var(--dy)), 0) scale(0); opacity: 0; }
+    }
+
+    @keyframes trail {
+      to { transform: translate(-50%, -50%) scale(2.8); opacity: 0; }
+    }
+
+    @keyframes capsuleWobble {
+      0%, 100% { translate: 0 0; rotate: -16deg; scale: 1; }
+      50% { translate: 0 -26px; rotate: 17deg; scale: 1.04; }
+    }
+
+    @keyframes jelly {
+      0%, 100% { transform: translateY(0) rotate(-8deg) scale(1,1); border-radius: 34% 66% 40% 60% / 57% 42% 58% 43%; }
+      50% { transform: translateY(-28px) rotate(8deg) scale(1.08,.94); border-radius: 61% 39% 58% 42% / 43% 59% 41% 57%; }
+    }
+
+    @keyframes moonFloat {
+      0%, 100% { translate: 0 0; rotate: 0deg; }
+      50% { translate: 0 -28px; rotate: 12deg; }
+    }
+
+    @keyframes triangleFlip {
+      0%, 100% { translate: 0 0; rotate: 0deg; }
+      50% { translate: 0 -22px; rotate: 180deg; }
+    }
+
+    @keyframes checkerMove {
+      to { background-position: 64px 64px, 80px 80px; }
+    }
+
+    @keyframes barSlide {
+      0%, 100% { transform: translateX(-18px) rotate(12deg); opacity: .1; }
+      50% { transform: translateX(18px) rotate(12deg); opacity: .38; }
+    }
+
+    @keyframes tinyFloat {
+      0%, 100% { transform: translate3d(0,0,0) rotate(0deg) scale(1); }
+      50% { transform: translate3d(var(--mx), var(--my), 0) rotate(var(--rot)) scale(1.15); }
+    }
+
+    @media (max-width: 720px) {
+      .o1 { width: 34vmin; height: 34vmin; left: 2vw; }
+      .o2 { width: 24vmin; height: 24vmin; right: 3vw; }
+      .o3 { width: 52vmin; height: 34vmin; left: 23vw; top: 38vh; }
+      .o4 { width: 29vmin; height: 29vmin; right: 4vw; bottom: 10vh; }
+      .o5 { width: 22vmin; height: 22vmin; left: 9vw; bottom: 10vh; }
+      .r1 { width: 26vmin; height: 26vmin; left: 58vw; top: 24vh; }
+      .r2 { width: 34vmin; height: 34vmin; right: 30vw; bottom: 3vh; }
+      .heart { width: 14vmin; height: 14vmin; }
+      .h2 { width: 10vmin; height: 10vmin; }
+      .h3 { width: 11vmin; height: 11vmin; }
+      .halo { width: 92vmin; height: 92vmin; }
+      .c1 { left: 4vw; top: 54vh; }
+      .c2 { right: 2vw; top: 38vh; }
+      .checker { width: 18vmin; height: 18vmin; }
+    }
+  </style>
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="aurora"></div>
+    <div class="halo"></div>
+
+    <div class="bar b1"></div>
+    <div class="bar b2"></div>
+    <div class="bar b3"></div>
+
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+    <div class="orb o4"></div>
+    <div class="orb o5"></div>
+
+    <div class="chrome-ring r1"></div>
+    <div class="chrome-ring r2"></div>
+
+    <div class="heart h1"></div>
+    <div class="heart h2"></div>
+    <div class="heart h3"></div>
+
+    <div class="capsule c1"></div>
+    <div class="capsule c2"></div>
+
+    <div class="jelly j1"></div>
+    <div class="jelly j2"></div>
+    <div class="jelly j3"></div>
+
+    <div class="moon"></div>
+    <div class="triangle t1"></div>
+    <div class="triangle t2"></div>
+    <div class="checker"></div>
+
+    <div class="sparkle" style="--x: 12vw; --y: 62vh; --s: 42px; --d: 2.8s;"></div>
+    <div class="sparkle" style="--x: 24vw; --y: 38vh; --s: 26px; --d: 2.1s;"></div>
+    <div class="sparkle" style="--x: 42vw; --y: 14vh; --s: 34px; --d: 3.4s;"></div>
+    <div class="sparkle" style="--x: 68vw; --y: 34vh; --s: 48px; --d: 2.7s;"></div>
+    <div class="sparkle" style="--x: 82vw; --y: 66vh; --s: 30px; --d: 3.1s;"></div>
+    <div class="sparkle" style="--x: 53vw; --y: 78vh; --s: 24px; --d: 2.4s;"></div>
+    <div class="sparkle" style="--x: 8vw; --y: 24vh; --s: 20px; --d: 3s;"></div>
+    <div class="sparkle" style="--x: 93vw; --y: 28vh; --s: 36px; --d: 2.2s;"></div>
+    <div class="sparkle" style="--x: 37vw; --y: 88vh; --s: 28px; --d: 3.7s;"></div>
+
+    <div class="bubble" style="--x: 7vw; --s: 28px; --d: 11s; --delay: -2s; --drift: 24vw;"></div>
+    <div class="bubble" style="--x: 19vw; --s: 44px; --d: 14s; --delay: -7s; --drift: -16vw;"></div>
+    <div class="bubble" style="--x: 36vw; --s: 22px; --d: 10s; --delay: -4s; --drift: 14vw;"></div>
+    <div class="bubble" style="--x: 58vw; --s: 38px; --d: 13s; --delay: -9s; --drift: -20vw;"></div>
+    <div class="bubble" style="--x: 73vw; --s: 26px; --d: 12s; --delay: -6s; --drift: 16vw;"></div>
+    <div class="bubble" style="--x: 88vw; --s: 50px; --d: 16s; --delay: -11s; --drift: -22vw;"></div>
+    <div class="bubble" style="--x: 44vw; --s: 32px; --d: 15s; --delay: -3s; --drift: 18vw;"></div>
+    <div class="bubble" style="--x: 96vw; --s: 20px; --d: 9s; --delay: -5s; --drift: -12vw;"></div>
+
+    <div class="shooting-star s1"></div>
+    <div class="shooting-star s2"></div>
+    <div class="shooting-star s3"></div>
+
+    <div class="scanline"></div>
+  </div>
+
+  <div class="cursor-glow" aria-hidden="true"></div>
+
+  <script>
+    const scene = document.querySelector('.scene');
+    const glow = document.querySelector('.cursor-glow');
+    const layers = document.querySelectorAll('.orb, .chrome-ring, .heart, .capsule, .jelly, .moon, .triangle, .checker');
+
+    const tinyColors = [
+      'linear-gradient(135deg, #ff4fa3, #ff9ccc)',
+      'linear-gradient(135deg, #8066ff, #c8b6ff)',
+      'linear-gradient(135deg, #bffff0, #ffffff)',
+      'linear-gradient(135deg, #fff2a8, #ff9ccc)',
+      'linear-gradient(135deg, #bde7ff, #ffffff)'
+    ];
+
+    const tinyTypes = ['dot', 'ring', 'diamond', 'line', 'tri'];
+
+    for (let i = 0; i < 90; i++) {
+      const piece = document.createElement('i');
+      const type = tinyTypes[Math.floor(Math.random() * tinyTypes.length)];
+      const size = Math.floor(6 + Math.random() * 22);
+      piece.className = `tiny-piece ${type}`;
+      piece.style.setProperty('--x', Math.random() * 100 + 'vw');
+      piece.style.setProperty('--y', Math.random() * 100 + 'vh');
+      piece.style.setProperty('--s', size + 'px');
+      piece.style.setProperty('--o', 0.24 + Math.random() * 0.62);
+      piece.style.setProperty('--d', 4 + Math.random() * 9 + 's');
+      piece.style.setProperty('--delay', -Math.random() * 9 + 's');
+      piece.style.setProperty('--mx', -24 + Math.random() * 48 + 'px');
+      piece.style.setProperty('--my', -34 + Math.random() * 68 + 'px');
+      piece.style.setProperty('--rot', -180 + Math.random() * 360 + 'deg');
+      piece.style.setProperty('--bg', tinyColors[Math.floor(Math.random() * tinyColors.length)]);
+      scene.appendChild(piece);
+    }
+
+    let trailLock = false;
+
+    window.addEventListener('pointermove', (event) => {
+      const x = event.clientX / window.innerWidth - 0.5;
+      const y = event.clientY / window.innerHeight - 0.5;
+
+      if (glow) {
+        glow.style.left = event.clientX + 'px';
+        glow.style.top = event.clientY + 'px';
+      }
+
+      if (scene) {
+        scene.style.transform = `rotateX(${y * -4}deg) rotateY(${x * 4}deg)`;
+      }
+
+      layers.forEach((el, index) => {
+        const depth = (index % 6 + 1) * 4;
+        el.style.marginLeft = `${x * depth}px`;
+        el.style.marginTop = `${y * depth}px`;
+      });
+
+      if (!trailLock) {
+        trailLock = true;
+        const trail = document.createElement('i');
+        trail.className = 'trail';
+        trail.style.left = event.clientX + 'px';
+        trail.style.top = event.clientY + 'px';
+        document.body.appendChild(trail);
+        setTimeout(() => trail.remove(), 700);
+        setTimeout(() => { trailLock = false; }, 38);
+      }
+    });
+
+    window.addEventListener('pointerdown', (event) => {
+      const count = 34;
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('i');
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 48 + Math.random() * 150;
+        const size = 5 + Math.random() * 20;
+
+        particle.className = 'click-particle';
+        particle.style.setProperty('--start-x', event.clientX + 'px');
+        particle.style.setProperty('--start-y', event.clientY + 'px');
+        particle.style.setProperty('--dx', Math.cos(angle) * distance + 'px');
+        particle.style.setProperty('--dy', Math.sin(angle) * distance + 'px');
+        particle.style.setProperty('--size', size + 'px');
+        particle.style.setProperty('--bg', tinyColors[Math.floor(Math.random() * tinyColors.length)]);
+
+        if (Math.random() > .72) {
+          particle.style.borderRadius = '4px';
+          particle.style.rotate = Math.random() * 180 + 'deg';
+        }
+
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 900);
+      }
+    });
+  </script>
+</body>
+</html>
