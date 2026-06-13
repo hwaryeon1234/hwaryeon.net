@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='1' y='1' width='6.5' height='6.5' fill='%2300adef'/><rect x='8.5' y='1' width='6.5' height='6.5' fill='%2300adef'/><rect x='1' y='8.5' width='6.5' height='6.5' fill='%2300adef'/><rect x='8.5' y='8.5' width='6.5' height='6.5' fill='%2300adef'/></svg>">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+    color: #fff;
+    cursor: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* 각 단계 화면 */
+  .phase {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.8s;
+    pointer-events: none;
+  }
+
+  .phase.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Phase 1: BIOS */
+  .bios {
+    background: #000;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 40px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #aaa;
+  }
+
+  .bios-line {
+    opacity: 0;
+  }
+
+  .bios-line.show {
+    opacity: 1;
+  }
+
+  /* Phase 2: Windows 로고 + 동글동글 */
+  .boot {
+    background: #000;
+  }
+
+  .win-logo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    width: 90px;
+    height: 90px;
+    margin-bottom: 60px;
+  }
+
+  .win-logo div {
+    background: #0078d4;
+    border-radius: 2px;
+  }
+
+  .dots-container {
+    display: flex;
+    gap: 8px;
+    height: 10px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0;
+  }
+
+  .dots-container .dot {
+    animation: dotChase 2s infinite;
+  }
+
+  .dots-container .dot:nth-child(1) { animation-delay: 0s; }
+  .dots-container .dot:nth-child(2) { animation-delay: 0.15s; }
+  .dots-container .dot:nth-child(3) { animation-delay: 0.3s; }
+  .dots-container .dot:nth-child(4) { animation-delay: 0.45s; }
+  .dots-container .dot:nth-child(5) { animation-delay: 0.6s; }
+
+  @keyframes dotChase {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    30%, 70% { opacity: 1; transform: scale(1); }
+  }
+
+  /* Phase 3: 환영 화면 */
+  .welcome {
+    background: #0078d4;
+  }
+
+  .welcome-text {
+    font-size: 42px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-bottom: 30px;
+  }
+
+  .welcome-sub {
+    font-size: 16px;
+    font-weight: 300;
+    opacity: 0.8;
+  }
+
+  /* Phase 4: 준비 중 */
+  .preparing {
+    background: #0078d4;
+  }
+
+  .preparing-text {
+    font-size: 28px;
+    font-weight: 300;
+  }
+
+  .preparing-dots::after {
+    content: '';
+    animation: loadDots 1.5s infinite;
+  }
+
+  @keyframes loadDots {
+    0% { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+  }
+
+  /* Phase 5: 에러 (BSOD) */
+  .bsod {
+    background: #0078d7;
+    align-items: flex-start;
+    padding: 10% 12%;
+  }
+
+  .bsod-face {
+    font-size: 120px;
+    font-weight: 200;
+    margin-bottom: 30px;
+  }
+
+  .bsod-title {
+    font-size: 24px;
+    font-weight: 400;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .bsod-detail {
+    font-size: 14px;
+    font-weight: 300;
+    opacity: 0.9;
+    line-height: 1.8;
+    max-width: 700px;
+  }
+
+  .bsod-percent {
+    font-size: 14px;
+    margin-top: 30px;
+    opacity: 0.9;
+  }
+
+  .bsod-qr {
+    width: 80px;
+    height: 80px;
+    background: #fff;
+    margin-top: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bsod-qr-inner {
+    width: 60px;
+    height: 60px;
+    background: repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 12px 12px;
+  }
+
+  /* Phase 6: 자동 복구 */
+  .recovery {
+    background: #000;
+  }
+
+  .recovery-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 24px;
+  }
+
+  .recovery-text {
+    font-size: 16px;
+    font-weight: 300;
+    color: #ccc;
+    line-height: 1.8;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .spinner-ring {
+    width: 50px;
+    height: 50px;
+    border: 3px solid transparent;
+    border-top: 3px solid #fff;
+    border-radius: 50%;
+    animation: spin 1.5s linear infinite;
+    margin-bottom: 30px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .recovery-sub {
+    font-size: 14px;
+    color: #888;
+  }
+
+  /* 전체화면 안내 */
+  .hint {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+  }
+
+  .hint-sub {
+    font-size: 15px;
+    opacity: 0.6;
+    margin-top: 12px;
+  }
+
+  .hint.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- 전체화면 안내 -->
+<div class="hint" id="hint" onclick="goFullscreen()">
+  <div>🖥️ 클릭하면 전체 화면으로 시작합니다</div>
+  <div class="hint-sub">F11을 눌러도 전체화면이 됩니다</div>
+</div>
+
+<!-- Phase 1: BIOS -->
+<div class="phase bios" id="phase-bios">
+  <div class="bios-line" id="b0">American Megatrends Inc. BIOS Rev. 5.14</div>
+  <div class="bios-line" id="b1">Copyright (C) 2024 American Megatrends, Inc.</div>
+  <div class="bios-line" id="b2">&nbsp;</div>
+  <div class="bios-line" id="b3">HWARYEON-PC ACPI BIOS Revision 1009</div>
+  <div class="bios-line" id="b4">CPU: Intel(R) Core(TM) i7-13700K @ 3.40GHz</div>
+  <div class="bios-line" id="b5">Speed: 3400 MHz &nbsp; Count: 16</div>
+  <div class="bios-line" id="b6">&nbsp;</div>
+  <div class="bios-line" id="b7">Initializing USB Controllers .. Done.</div>
+  <div class="bios-line" id="b8">32768MB OK (DDR5)</div>
+  <div class="bios-line" id="b9">&nbsp;</div>
+  <div class="bios-line" id="b10">Auto-Detecting Primary Master..IDE Hard Disk</div>
+  <div class="bios-line" id="b11">Auto-Detecting Primary Slave...ATAPI CD-ROM</div>
+  <div class="bios-line" id="b12">Primary Master: Samsung SSD 990 PRO 2TB</div>
+  <div class="bios-line" id="b13">&nbsp;</div>
+  <div class="bios-line" id="b14" style="color: #ff5;">Press DEL to run Setup, F12 for Boot Menu</div>
+</div>
+
+<!-- Phase 2: Windows 부팅 로고 -->
+<div class="phase boot" id="phase-boot">
+  <div class="win-logo">
+    <div></div><div></div><div></div><div></div>
+  </div>
+  <div class="dots-container">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+</div>
+
+<!-- Phase 3: 환영 -->
+<div class="phase welcome" id="phase-welcome">
+  <div class="welcome-text">환영합니다</div>
+  <div class="welcome-sub">잠시만 기다려 주세요...</div>
+</div>
+
+<!-- Phase 4: 준비 중 -->
+<div class="phase preparing" id="phase-preparing">
+  <div class="preparing-text">기기를 준비하고 있습니다<span class="preparing-dots"></span></div>
+</div>
+
+<!-- Phase 5: BSOD -->
+<div class="phase bsod" id="phase-bsod">
+  <div class="bsod-face">:(</div>
+  <div class="bsod-title">PC에 문제가 발생하여 다시 시작해야 합니다.<br>일부 오류 정보를 수집한 다음, 자동으로 다시 시작합니다.</div>
+  <div class="bsod-percent" id="bsod-percent">0% 완료</div>
+  <div class="bsod-detail">
+    자세한 정보를 알아보려면 나중에 다음 오류를 온라인에서 검색하세요:<br>
+    KERNEL_DATA_INPAGE_ERROR
+  </div>
+  <div class="bsod-qr"><div class="bsod-qr-inner"></div></div>
+</div>
+
+<!-- Phase 6: 자동 복구 -->
+<div class="phase recovery" id="phase-recovery">
+  <div class="spinner-ring"></div>
+  <div class="recovery-title">자동 복구 준비 중</div>
+  <div class="recovery-text">PC를 진단하고 있습니다...<br>전원을 끄지 마세요.</div>
+  <div class="recovery-sub">이 작업은 몇 분 정도 걸릴 수 있습니다.</div>
+</div>
+
+<script>
+  let cycle = 0;
+
+  function goFullscreen() {
+    document.documentElement.requestFullscreen?.() ||
+    document.documentElement.webkitRequestFullscreen?.();
+    document.getElementById('hint').classList.add('hidden');
+    startSequence();
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' || (e.altKey && e.key === 'F4') || (e.ctrlKey && e.key === 'w')) {
+      e.preventDefault();
+    }
+  });
+
+  function showPhase(id) {
+    document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+  }
+
+  async function biosSequence() {
+    showPhase('phase-bios');
+    const lines = document.querySelectorAll('.bios-line');
+    for (let i = 0; i < lines.length; i++) {
+      lines[i].classList.add('show');
+      await sleep(200 + Math.random() * 300);
+    }
+    await sleep(2000);
+    // 깜빡임
+    document.getElementById('phase-bios').style.opacity = '0';
+    await sleep(300);
+  }
+
+  async function bootSequence() {
+    showPhase('phase-boot');
+    await sleep(6000 + Math.random() * 3000);
+  }
+
+  async function welcomeSequence() {
+    showPhase('phase-welcome');
+    await sleep(3000);
+  }
+
+  async function preparingSequence() {
+    showPhase('phase-preparing');
+    await sleep(4000 + Math.random() * 3000);
+  }
+
+  async function bsodSequence() {
+    showPhase('phase-bsod');
+    
+    const errors = [
+      'KERNEL_DATA_INPAGE_ERROR',
+      'CRITICAL_PROCESS_DIED',
+      'SYSTEM_SERVICE_EXCEPTION',
+      'IRQL_NOT_LESS_OR_EQUAL',
+      'DRIVER_IRQL_NOT_LESS_OR_EQUAL',
+      'PAGE_FAULT_IN_NONPAGED_AREA',
+      'SYSTEM_THREAD_EXCEPTION_NOT_HANDLED',
+      'UNEXPECTED_KERNEL_MODE_TRAP',
+    ];
+
+    const errorEl = document.querySelector('.bsod-detail');
+    const err = errors[Math.floor(Math.random() * errors.length)];
+    errorEl.innerHTML = `자세한 정보를 알아보려면 나중에 다음 오류를 온라인에서 검색하세요:<br>${err}`;
+
+    let pct = 0;
+    const percentEl = document.getElementById('bsod-percent');
+    
+    while (pct < 100) {
+      pct += Math.random() * 3;
+      if (pct > 100) pct = 100;
+      percentEl.textContent = Math.floor(pct) + '% 완료';
+      await sleep(500 + Math.random() * 500);
+    }
+    await sleep(2000);
+  }
+
+  async function recoverySequence() {
+    showPhase('phase-recovery');
+    await sleep(8000 + Math.random() * 4000);
+  }
+
+  async function startSequence() {
+    while (true) {
+      cycle++;
+
+      // BIOS는 첫 번째만
+      if (cycle === 1) {
+        await biosSequence();
+      }
+
+      await bootSequence();
+      
+      if (cycle <= 2) {
+        await welcomeSequence();
+        await preparingSequence();
+      }
+
+      await bsodSequence();
+
+      // 화면 꺼짐
+      document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+      await sleep(1500);
+
+      if (cycle >= 2) {
+        await recoverySequence();
+        // 복구 실패 후 다시 꺼짐
+        document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+        await sleep(2000);
+      }
+
+      // BIOS 라인 리셋
+      document.querySelectorAll('.bios-line').forEach(l => l.classList.remove('show'));
+    }
+  }
+</script>
+</body>
+</html>
