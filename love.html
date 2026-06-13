@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>설문조사</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='14'>📋</text></svg>">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f5f5f5;
+    font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    padding: 48px 56px;
+    text-align: center;
+    max-width: 460px;
+    width: 90%;
+  }
+
+  .card h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 12px;
+  }
+
+  .card p {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 36px;
+    line-height: 1.6;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .btn-yes {
+    padding: 14px 40px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #4CAF50;
+    color: #fff;
+    transition: transform 0.05s;
+    position: fixed;
+    z-index: 100;
+  }
+
+  .btn-yes:hover {
+    background: #43A047;
+  }
+
+  .btn-no {
+    padding: 14px 40px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #e53935;
+    color: #fff;
+    transition: background 0.2s;
+  }
+
+  .btn-no:hover {
+    background: #c62828;
+  }
+
+  .placeholder-yes {
+    width: 130px;
+    height: 50px;
+  }
+
+  /* 성공 화면 */
+  .success {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+
+  .success.active { display: flex; }
+
+  .success-emoji { font-size: 80px; margin-bottom: 24px; }
+  .success-text { font-size: 24px; color: #222; font-weight: 600; }
+  .success-sub { font-size: 16px; color: #888; margin-top: 12px; }
+
+  /* 도발 메시지 */
+  .taunt {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 200;
+    pointer-events: none;
+  }
+
+  .taunt.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="taunt" id="taunt"></div>
+
+<div class="card">
+  <h1>저를 좋아하시나요? 💕</h1>
+  <p>솔직하게 답해주세요.<br>익명으로 처리됩니다.</p>
+  <div class="btn-group">
+    <div class="placeholder-yes" id="placeholder"></div>
+    <button class="btn-no" onclick="clickNo()">아니요</button>
+  </div>
+</div>
+
+<button class="btn-yes" id="yesBtn">네!</button>
+
+<div class="success" id="success">
+  <div class="success-emoji">🎉</div>
+  <div class="success-text">감사합니다!</div>
+  <div class="success-sub">...근데 진짜요? 장난 아니고?</div>
+</div>
+
+<script>
+  const yesBtn = document.getElementById('yesBtn');
+  const placeholder = document.getElementById('placeholder');
+  const tauntEl = document.getElementById('taunt');
+
+  let attempts = 0;
+  let speed = 1;
+  let settled = true;
+
+  const taunts = [
+    "ㅋㅋ 너무 느려~",
+    "거의 다 왔는데?",
+    "한 번만 더 해봐!",
+    "포기하지 마!",
+    "진짜 누르고 싶은 거 맞아?",
+    "에이~ 못 누르지~",
+    "마우스 고장 아니야?",
+    "손이 떨리나봐 ㅎㅎ",
+    "가까웠는데!",
+    "이번엔 진짜 가만히 있을게... 아닌데 ㅋ",
+    "야 진심 못 누르는 거야?",
+    "AI가 이기는 세상 ㅎ",
+  ];
+
+  // 처음 위치 세팅
+  function positionAtPlaceholder() {
+    const rect = placeholder.getBoundingClientRect();
+    yesBtn.style.left = rect.left + 'px';
+    yesBtn.style.top = rect.top + 'px';
+  }
+  positionAtPlaceholder();
+  window.addEventListener('resize', () => { if (settled) positionAtPlaceholder(); });
+
+  function showTaunt() {
+    const msg = taunts[Math.floor(Math.random() * taunts.length)];
+    tauntEl.textContent = msg;
+    tauntEl.classList.add('show');
+    setTimeout(() => tauntEl.classList.remove('show'), 1800);
+  }
+
+  function runAway() {
+    attempts++;
+    settled = false;
+    speed = Math.min(speed + 0.15, 3);
+
+    if (attempts % 3 === 0) showTaunt();
+
+    const btnW = yesBtn.offsetWidth;
+    const btnH = yesBtn.offsetHeight;
+    const margin = 20;
+
+    const maxX = window.innerWidth - btnW - margin;
+    const maxY = window.innerHeight - btnH - margin;
+
+    let newX, newY;
+    const currentX = parseFloat(yesBtn.style.left);
+    const currentY = parseFloat(yesBtn.style.top);
+
+    // 현재 위치에서 멀리 도망가게
+    do {
+      newX = margin + Math.random() * (maxX - margin);
+      newY = margin + Math.random() * (maxY - margin);
+    } while (
+      Math.abs(newX - currentX) < 150 && Math.abs(newY - currentY) < 150
+    );
+
+    yesBtn.style.left = newX + 'px';
+    yesBtn.style.top = newY + 'px';
+
+    // 가끔 크기도 줄이기
+    if (attempts > 10 && Math.random() < 0.3) {
+      const scale = 0.5 + Math.random() * 0.5;
+      yesBtn.style.transform = `scale(${scale})`;
+    }
+
+    // 20번 이상이면 가끔 진짜 멈추는 척
+    if (attempts > 20 && Math.random() < 0.15) {
+      yesBtn.style.transition = 'all 0.5s ease';
+      setTimeout(() => {
+        yesBtn.style.transition = 'transform 0.05s';
+      }, 600);
+    }
+  }
+
+  // 마우스가 가까이 오면 도망
+  document.addEventListener('mousemove', (e) => {
+    const rect = yesBtn.getBoundingClientRect();
+    const btnCenterX = rect.left + rect.width / 2;
+    const btnCenterY = rect.top + rect.height / 2;
+    const dist = Math.sqrt((e.clientX - btnCenterX) ** 2 + (e.clientY - btnCenterY) ** 2);
+
+    const threshold = 80 + (speed * 20);
+    if (dist < threshold) {
+      runAway();
+    }
+  });
+
+  // 모바일 터치 대응
+  yesBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    runAway();
+  });
+
+  // 혹시 진짜 누르면
+  yesBtn.addEventListener('click', () => {
+    if (attempts > 30) {
+      document.getElementById('success').classList.add('active');
+    } else {
+      runAway();
+    }
+  });
+
+  // 아니요 누르면
+  function clickNo() {
+    document.querySelector('.card h1').textContent = '다시 생각해봐 😤';
+    document.querySelector('.card p').textContent = '"네"를 눌러주세요.';
+    setTimeout(() => {
+      document.querySelector('.card h1').textContent = '저를 좋아하시나요? 💕';
+      document.querySelector('.card p').innerHTML = '솔직하게 답해주세요.<br>익명으로 처리됩니다.';
+    }, 2000);
+  }
+</script>
+</body>
+</html>
